@@ -1,0 +1,68 @@
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# unidirectional
+pixima => pixima,pixma
+bayblade => bayblade,beyblade
+camera => camera,camescope
+causeuse => causeuse,canape
+chiffonnier => chiffonnier,commode
+cyan => cyan,bleu
+debardeur => debardeur,top
+ereader => ereader,ebook
+fourchette => fourchette,menagere
+lte => lte,4g
+radiocommande => radiocommande,telecommande
+rando => rando,randonnee
+rouge => rouge,magenta
+strass => strass,paillette
+synthe => synthe,synthetiseur
+
+# bidirectional
+gb,gib,gigabyte,gigabytes
+mb,mib,megabyte,megabytes
+tv,tele,television,televiseur
+frigo,refrigerateur,frigidaire
+clim, climatisation, climatiseur
+jacuzzi, spa, jaccuzi
+bracelet, jonc, manchette
+ordi, ordinateur, pc
+hoverboard, gyropode, segway, overboard
+etendoir, sechoir, tankarville, tancarville
+ethylotest, alcootest
+kg, kilo
+4k, uhd
+abdominaux, abdo
+babyphone, babycamera
+baffle, enceinte
+barcelone, barca
+bonbon, confiserie
+calculette, calculatrice
+carat, ct
+chamallow, guimauve
+chanceliere, gigoteuse
+chauffage, radiateur
+disqueuse, meuleuse
+foot, football
+gaziniere, cuisiniere
+gb, go
+lavabo, vasque
+liveplug, cpl
+norton, symantec
+padfone, fonepad
+poster, affiche
+skate, skateboard
+survetement, jogging
+sweat, sweatshirt
+tonnelle, pergola
+masculin, homme
+feminin, femme

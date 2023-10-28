@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+
+<schema name="default-config" version="1.6">
+
+    <similarity class="org.apache.lucene.search.similarities.AnotherCustomAutocompleteSimilarity"/>
+
+    <uniqueKey>id</uniqueKey>
+
+    <field name="id" type="string" indexed="true" required="true"/>
+    <field name="search" type="text" indexed="true" stored="true"/>
+
+    <!--   Don't try to index these fields, updateRequestProcessorChain "concat_autocomplete" build them with search field -->
+    <field name="search_payload" type="payload" indexed="true" stored="true"/>
+    <field name="search_ngram" type="edge_ngram" indexed="true" stored="true"/>
+    <field name="search_ngram_second" type="ngram" indexed="true" stored="true"/>
+    <field name="search_payload_concat" type="payload" indexed="true" stored="true"/>
+    <field name="search_ngram_concat" type="edge_ngram" indexed="true" stored="true"/>
+    <field name="search_text" type="string" docValues="true"/>
+    <!--  -->
+
+    <field name="jsonText" type="string" indexed="false" stored="true" docValues="true" multiValued="false"/>
+    <field name="weight" type="pfloat" indexed="true" stored="false" docValues="true" multiValued="false" default="0"/>
+
+    <field name="computationdate" type="pdate" indexed="true" stored="false"/>
+    <field name="timestamp" type="pdate" indexed="true" stored="false" default="NOW" multiValued="false"/>
+    <field name="_version_" type="plong" indexed="false" stored="false"/>
+
+    <!--   FieldType -->
+
+    <fieldType name="string" class="solr.StrField" sortMissingLast="true" docValues="true" omitNorms="true"/>
+    <fieldType name="pint" class="solr.IntPointField" docValues="true"/>
+    <fieldType name="pfloat" class="solr.FloatPointField" docValues="true"/>
+    <fieldType name="plong" class="solr.LongPointField" docValues="true" sortMissingLast="true"/>
+    <fieldType name="pdate" class="solr.DatePointField" docValues="true" sortMissingLast="true"/>
+
+    <fieldType name="text" class="solr.TextField" positionIncrementGap="100" omitNorms="true">
+        <analyzer type="index">
+            <tokenizer class="org.apache.lucene.analysis.LetterOrDigitTokenizerFactory"/>
+            <!-- removes l', etc -->
+            <filter class="solr.ElisionFilterFactory" ignoreCase="true" articles="lang/contractions.txt"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.ASCIIFoldingFilterFactory"/>
+            <filter class="org.apache.lucene.analysis.DeduplicateFilterFactory"/>
+        </analyzer>
+        <analyzer  type="query">
+            <tokenizer class="org.apache.lucene.analysis.LetterOrDigitTokenizerFactory"/>
+            <!-- removes l', etc -->
+            <filter class="solr.ElisionFilterFactory" ignoreCase="true" articles="lang/contractions.txt"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.ASCIIFoldingFilterFactory"/>
+        </analyzer>
+    </fieldType>
+
+    <fieldType name="payload" class="solr.TextField" positionIncrementGap="100" omitNorms="true" termPayloads="true"
+               termPositions="true" termVectors="true">
+        <analyzer>
+            <tokenizer class="org.apache.lucene.analysis.LetterOrDigitTokenizerFactory"/>
+            <filter class="solr.ElisionFilterFactory" ignoreCase="true" articles="lang/contractions.txt"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.ASCIIFoldingFilterFactory"/>
+            <filter class="org.apache.lucene.analysis.DeduplicateFilterFactory"/>
+            <filter class="org.apache.lucene.analysis.PositionInsertFilterFactory"/>
+            <filter class="org.apache.lucene.analysis.CDelimitedPayloadTokenFilterFactory" encoder="float"/>
+        </analyzer>
+    </fieldType>
+
+    <fieldType name="edge_ngram" class="solr.TextField" positionIncrementGap="100" termPayloads="true" termPositions="true" termVectors="true">
+        <analyzer type="index">
+            <tokenizer class="org.apache.lucene.analysis.LetterOrDigitTokenizerFactory"/>
+            <filter class="solr.ElisionFilterFactory" ignoreCase="true" articles="lang/contractions.txt"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.ASCIIFoldingFilterFactory"/>
+            <filter class="org.apache.lucene.analysis.PositionInsertFilterFactory"/>
+            <filter class="org.apache.lucene.analysis.DeduplicateFilterFactory"/>
+            <filter class="org.apache.lucene.analysis.CDelimitedPayloadTokenFilterFactory" encoder="float"/>
+            <filter class="solr.EdgeNGramTokenFilterFactory" minGramSize="1" maxGramSize="7" preserveOriginal="true"/>
+        </analyzer>
+        <analyzer type="query">
+            <tokenizer class="org.apache.lucene.analysis.LetterOrDigitTokenizerFactory"/>
+            <filter class="solr.ElisionFilterFactory" ignoreCase="true" articles="lang/contractions.txt"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.ASCIIFoldingFilterFactory"/>
+        </analyzer>
+    </fieldType>
+
+    <fieldType name="ngram" class="solr.TextField" positionIncrementGap="100" termPayloads="true" termPositions="true" termVectors="true">
+        <analyzer type="index">
+            <tokenizer class="org.apache.lucene.analysis.LetterOrDigitTokenizerFactory"/>
+            <filter class="solr.ElisionFilterFactory" ignoreCase="true" articles="lang/contractions.txt"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.ASCIIFoldingFilterFactory"/>
+            <filter class="org.apache.lucene.analysis.PositionInsertFilterFactory"/>
+            <filter class="org.apache.lucene.analysis.DeduplicateFilterFactory"/>
+            <filter class="org.apache.lucene.analysis.CDelimitedPayloadTokenFilterFactory" encoder="float"/>
+            <filter class="solr.NGramTokenFilterFactory" minGramSize="1" maxGramSize="7" preserveOriginal="true"/>
+        </analyzer>
+        <analyzer type="query">
+            <tokenizer class="org.apache.lucene.analysis.LetterOrDigitTokenizerFactory"/>
+            <filter class="solr.ElisionFilterFactory" ignoreCase="true" articles="lang/contractions.txt"/>
+            <filter class="solr.LowerCaseFilterFactory"/>
+            <filter class="solr.ASCIIFoldingFilterFactory"/>
+        </analyzer>
+    </fieldType>
+
+</schema>

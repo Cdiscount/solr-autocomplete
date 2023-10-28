@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<config>
+
+    <luceneMatchVersion>8.8.0</luceneMatchVersion>
+
+    <dataDir>${solr.data.dir:}</dataDir>
+
+
+    <directoryFactory name="DirectoryFactory" class="${solr.directoryFactory:solr.StandardDirectoryFactory}">
+        <double name="maxWriteMBPerSecDefault">1000000</double>
+        <double name="maxWriteMBPerSecFlush">2000000</double>
+        <double name="maxWriteMBPerSecMerge">3000000</double>
+        <double name="maxWriteMBPerSecRead">4000000</double>
+        <str name="solr.hdfs.home">${solr.hdfs.home:}</str>
+        <bool name="solr.hdfs.blockcache.enabled">${solr.hdfs.blockcache.enabled:true}</bool>
+        <bool name="solr.hdfs.blockcache.global">${solr.hdfs.blockcache.global:true}</bool>
+        <bool name="solr.hdfs.blockcache.write.enabled">${solr.hdfs.blockcache.write.enabled:false}</bool>
+        <int name="solr.hdfs.blockcache.blocksperbank">${solr.hdfs.blockcache.blocksperbank:10}</int>
+        <int name="solr.hdfs.blockcache.slab.count">${solr.hdfs.blockcache.slab.count:1}</int>
+    </directoryFactory>
+
+    <schemaFactory class="ClassicIndexSchemaFactory"/>
+    <codecFactory class="solr.SchemaCodecFactory"/>
+
+
+    <indexConfig>
+        <lockType>${solr.lock.type:native}</lockType>
+    </indexConfig>
+
+    <updateHandler class="solr.DirectUpdateHandler2">
+        <autoCommit>
+            <maxTime>${solr.autoCommit.maxTime:-1}</maxTime>
+            <maxDocs>1</maxDocs>
+
+        </autoCommit>
+        <updateLog enable="${enable.update.log:true}">
+            <str name="dir">${solr.ulog.dir:}</str>
+        </updateLog>
+        <commitWithin>
+            <softCommit>${solr.commitwithin.softcommit:true}</softCommit>
+        </commitWithin>
+    </updateHandler>
+
+    <updateRequestProcessorChain name="concat_autocomplete" default="true">
+        <processor class="solr.CloneFieldUpdateProcessorFactory">
+            <str name="source">search</str>
+            <str name="dest">search_payload</str>
+        </processor>
+        <processor class="solr.CloneFieldUpdateProcessorFactory">
+            <str name="source">search</str>
+            <str name="dest">search_ngram</str>
+        </processor>
+        <processor class="solr.CloneFieldUpdateProcessorFactory">
+            <str name="source">search</str>
+            <str name="dest">search_payload_concat</str>
+        </processor>
+        <processor class="solr.CloneFieldUpdateProcessorFactory">
+            <str name="source">search</str>
+            <str name="dest">search_ngram_concat</str>
+        </processor>
+        <processor class="solr.CloneFieldUpdateProcessorFactory">
+            <str name="source">search</str>
+            <str name="dest">search_text</str>
+        </processor>
+        <processor class="org.apache.solr.update.processor.WordConcatFieldUpdateProcessorFactory">
+            <str name="fieldName">search_payload_concat</str>
+            <str name="fieldName">search_ngram_concat</str>
+        </processor>
+
+        <processor class="solr.LogUpdateProcessorFactory"/>
+        <processor class="solr.DistributedUpdateProcessorFactory"/>
+        <processor class="solr.RunUpdateProcessorFactory"/>
+    </updateRequestProcessorChain>
+
+    <query>
+        <maxBooleanClauses>${solr.max.booleanClauses:1024}</maxBooleanClauses>
+
+        <filterCache class="solr.search.CaffeineCache" size="4096" initialSize="1024" autowarmCount="64"
+                     maxIdleTime="30"/>
+        <queryResultCache class="solr.search.CaffeineCache" size="1024" initialSize="256" autowarmCount="0"
+                          maxIdleTime="30"/>
+        <cache name="perSegFilter" class="solr.search.CaffeineCache" size="10" initialSize="0" autowarmCount="10"
+               regenerator="solr.NoOpRegenerator" maxIdleTime="30"/>
+        <cache name="autocompleteCache" class="solr.search.CaffeineCache" maxRamMB="2048" size="4096" initialSize="1024"
+               autowarmCount="0" regenerator="solr.NoOpRegenerator" maxIdleTime="900"/>
+
+
+        <!-- /Cache -->
+
+        <enableLazyFieldLoading>true</enableLazyFieldLoading>
+        <queryResultWindowSize>30</queryResultWindowSize>
+        <queryResultMaxDocsCached>200</queryResultMaxDocsCached>
+        <useColdSearcher>true</useColdSearcher>
+    </query>
+
+    <requestDispatcher>
+        <httpCaching never304="true"/>
+    </requestDispatcher>
+
+
+    <requestHandler name="/select" class="solr.SearchHandler">
+        <lst name="defaults">
+            <str name="echoParams">explicit</str>
+            <int name="rows">10</int>
+            <str name="fl">id,word,friends</str>
+            <str name="wt">json</str>
+            <str name="defType">edismax</str>
+            <str name="qf">word</str>
+            <str name="pf">word</str>
+            <str name="mm">100%</str>
+            <int name="ps">5</int>
+        </lst>
+    </requestHandler>
+
+
+    <requestHandler name="/autocomplete" class="solr.SearchHandler">
+        <lst name="defaults">
+            <str name="echoParams">explicit</str>
+            <int name="rows">0</int>
+            <str name="suggest">true</str>
+            <str name="suggest.count">7</str>
+        </lst>
+        <arr name="components">
+            <str>autocomplete</str>
+        </arr>
+    </requestHandler>
+
+    <searchComponent name="autocomplete" class="solr.AutocompleteComponent">
+        <lst name="suggester">
+            <str name="name">default</str>
+            <str name="lookupImpl">AutocompleteLookupFactory</str>
+            <str name="impl">AutocompleteSuggester</str>
+            <str name="dictionaryImpl">DocumentDictionaryFactory</str>
+            <str name="field">search</str>
+<!--            <str name="payloadField">search_payload</str>-->
+            <str name="ngramField">search_ngram</str>
+<!--            <str name="concatPayloadField">search_payload_concat</str>-->
+            <str name="concatNgramField">search_ngram_concat</str>
+            <str name="displayField">search_text</str>
+            <str name="contextField">categories</str>
+            <bool name="contextJsonify">true</bool>
+            <str name="weightField">weight</str>
+            <str name="weightCoefficient">0.00003</str>
+            <str name="suggestAnalyzerFieldType">text_fr</str>
+            <int name="minSizeQuery">1</int>
+            <bool name="firstContextOnly">true</bool>
+
+            <str name="cacheName">autocompleteCache</str>
+            <int name="maxQueryLengthCache">2</int>
+        </lst>
+    </searchComponent>
+
+
+</config>
+
