@@ -135,7 +135,7 @@ http://<server>:<port>/solr/admin/collections?action=ADDREPLICA&collection=autoc
 
 ### Test it !
 
-```http
+```bash
 http://<server>:<port>/solr/<collection_name>/autocomplete?q=apple
 ```
 
