@@ -15,7 +15,7 @@
   limitations under the License.
 -->
 
-Welcome to Peaksys Solr Autocomplete component!
+Welcome to Peaksys Solr Autocomplete component !
 ========
 
 Peaksys Solr Autocomplete provides an autocompletion module that helps users save time and effort by suggesting or completing words or phrases as they type. 
